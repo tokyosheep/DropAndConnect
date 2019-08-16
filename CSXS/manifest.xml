@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ExtensionManifest Version="9.0" ExtensionBundleId="DropAndConnect" ExtensionBundleVersion="1.0.0"
+		ExtensionBundleName="DropAndConnect" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<ExtensionList>
+		<Extension Id="DropAndConnect" Version="1.0.0" />
+	</ExtensionList>
+	<ExecutionEnvironment>
+		<HostList>
+			
+             <!-- Uncomment tags according to the apps you want your panel to support 
+			Make sure to change these tags to use realistic version ranges before releasing your extensions, not 99.9!
+			You may also need to change the CEP version in order to support certain apps. -->
+            
+            <Host Name="KBRG" Version="[8.0,99.99]" />
+
+		</HostList>
+		<LocaleList>
+			<Locale Code="All" />
+		</LocaleList>
+		<RequiredRuntimeList>
+			<RequiredRuntime Name="CSXS" Version="9.0" />
+		</RequiredRuntimeList>
+	</ExecutionEnvironment>
+	<DispatchInfoList>
+		<Extension Id="DropAndConnect">
+			<DispatchInfo >
+				<Resources>
+				<MainPath>./index.html</MainPath>
+				<ScriptPath>./jsx/hostscript.jsx</ScriptPath>
+				<CEFCommandLine>   
+                    	    <Parameter>--enable-nodejs</Parameter>  
+                    	    <Parameter>--mixed-context</Parameter>  
+				</CEFCommandLine>
+				</Resources>
+				<Lifecycle>
+					<AutoVisible>true</AutoVisible>
+				</Lifecycle>
+				<UI>
+					<Type><!--ModalDialog-->Modeless</Type>
+					<Menu>DropAndConnect</Menu>
+					<Geometry>
+						<Size>
+							<Height>300</Height>
+							<Width>300</Width>
+						</Size>
+                    <!--<MinSize>
+                            <Height>550</Height>
+                            <Width>400</Width>
+                        </MinSize>
+                        <MaxSize>
+                            <Height>550</Height>
+                            <Width>400</Width>
+                        </MaxSize>-->
+                        
+					</Geometry>
+					<Icons>
+						<Icon Type="Normal">./icons/iconNormal.png</Icon>
+						<Icon Type="RollOver">./icons/iconRollover.png</Icon>
+						<Icon Type="Disabled">./icons/iconDisabled.png</Icon>
+						<Icon Type="DarkNormal">./icons/iconDarkNormal.png</Icon>
+						<Icon Type="DarkRollOver">./icons/iconDarkRollover.png</Icon>
+					</Icons>					
+				</UI>
+			</DispatchInfo>
+		</Extension>
+	</DispatchInfoList>
+</ExtensionManifest>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<ExtensionList>
+    <Extension Id="DropAndConnect">
+        <HostList>
+           
+            <!-- Comment Host tags according to the apps you want your panel to support -->
+            
+            <Host Name="KBRG" Port="8097"/>
+                        
+        </HostList>
+    </Extension>
+</ExtensionList>
+ 
