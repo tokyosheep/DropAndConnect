@@ -10,11 +10,19 @@
 </head>
 
 <body class="hostElt">
-
-    <div id="content">        
-        <div id="toPhotoshop"></div>
+    <button class="topcoat-button--large--cta" id="change">change app</button>
+    <div id="PhotoshopArea">        
+        <div id="toPhotoshop">
+            <div id="dropHere">PS</div>
+            <div class="waiting"></div>
+        </div>
     </div>
-    
+    <div id="IllustratorArea" class="hide">
+        <div id="toIllustrator">
+            <div id="dropHere" class="hide">AI</div>
+            <div class="waiting"></div>
+        </div>
+    </div>
     <!-- These are debugging shortcuts.  Class debuglink items only appear in debug mode  -->
     <span class="debuglink" id="reload">Reload</span>
     <span class="debuglink" id="debug">Debug</span>
@@ -24,6 +32,7 @@
     <script src="js/import/prevent_draganddrop.js"></script>
 
     <script src="js/themeManager.js"></script>
+    <script src="js/libs/Vulcan.js"></script>
     <script src="js/main.js"></script>
 
         
