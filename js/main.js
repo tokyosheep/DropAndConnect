@@ -33,7 +33,7 @@ window.onload = () =>{
                 method:"POST",
                 body:JSON.stringify(pathList)
             }).catch(err => alert("No response from Photoshop"));
-            const flag = await res,text();
+            const flag = await res.text();
             console.log(flag);
         }
     }
