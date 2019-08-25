@@ -11,6 +11,12 @@ window.onload = () =>{
     const filePath = csInterface.getSystemPath(SystemPath.EXTENSION) +`/js/`;
     const extensionRoot = csInterface.getSystemPath(SystemPath.EXTENSION) +`/jsx/`;
     const PSurl = "http://localhost:8000/";
+    const imgExt = [".tif",".tiff",".jpg",".jpeg",".psd",".psb",".png",".gif",".eps"];
+    
+    
+
+    const fs = require("fs");
+    const path = require("path"); 
     csInterface.evalScript(`$.evalFile("${extensionRoot}json2.js")`);//json2読み込み
     
     prevent_drag_event();
@@ -36,8 +42,9 @@ window.onload = () =>{
     const modeChange = new ModeManage(change,[PhotoshopArea,IllustratorArea]);
     
     class Drag{
-        constructor(target){
+        constructor(target,app){
             this.target = target;
+            this.app = app;
             this.target.addEventListener("dropover",this.handleDragOver);
             this.target.addEventListener("drop",this);
         }
@@ -57,48 +64,111 @@ window.onload = () =>{
             const pathList = files.map(v =>{ return v.path});
             return pathList;
         }
+        
+        isAI(array){
+            return array.every(ext => ext === ".ai");
+        }
+        
+        isAnImg(array){
+            if( array.length > 1){ 
+                alert("image files shold be one")    
+                return false;
+            }
+            return imgExt.some(e => e === array[0]);
+        }
+        
+        isImgs(array){
+            return array.every(ext => imgExt.some(e => e === ext));
+        }
+        
+        filterFolderImg(folderPath){
+            if(!isFolder(folderPath[0]) || folderPath.length < 1){
+                return folderPath.filter(v => imgExt.some(e=> e === path.extname(v).toLowerCase() ));
+            }else{
+                const files = fs.readdirSync(folderPath[0]);
+                const images = files.filter(v => imgExt.some(e=> e === path.extname(v).toLowerCase() ));
+                return images.map(v => path.join(folderPath[0],v));//取得したパスを全て絶対パスに変換;
+            }
+        }
+        
+        
+        sendMassage(object){
+            const vulcanNamespace = VulcanMessage.TYPE_PREFIX + extensionId;
+            const msg = new VulcanMessage(vulcanNamespace);
+            msg.setPayload(JSON.stringify(object));
+            VulcanInterface.dispatchMessage(msg);
+        }
+        
+        isAppRun(){
+            if(!VulcanInterface.isAppRunning(this.app)){
+                csInterface.evalScript(`alert("${this.app}が立ち上がっていません")`);
+                return false;
+            }
+            return true;
+        }
     }
     
     
-    class DragToServsr extends Drag{
-        constructor(url){
-            super(toPhotoshop)
-            this.url = url;
+    class DragToPhotoshop extends Drag{
+        constructor(app){
+            super(toPhotoshop,app)
+            //this.url = url;
         }
         
+        /*
         async handleEvent(e){
+            let fileList
             const pathList = this.getFiles(e);
-            console.log(pathList);
+            fileList = this.filterFolderImg(pathList);
+            console.log(fileList);
+            
             const res = await fetch(this.url,{
                 method:"POST",
-                body:JSON.stringify(pathList)
+                body:JSON.stringify(fileList)
             }).catch(err => alert("No response from Photoshop"));
             const flag = await res.text();
             console.log(flag);
         }
+        */
+        async handleEvent(e){
+            if(!this.isAppRun()) return false;
+            const pathList = this.getFiles(e);
+            const fileList = this.filterFolderImg(pathList);
+            console.log(fileList);
+            const object = {
+                fileList:fileList,
+                app:this.app
+            }
+            this.sendMassage(object);
+        }
     }
     
-    const dropToPs = new DragToServsr(PSurl);
+    const dropToPs = new DragToPhotoshop("photoshop");
     
-    class DropAnotherApp extends Drag{
-        constructor(target){
-            super(target);
+    class DropAnotherAI extends Drag{
+        constructor(target,app){
+            super(target,app);
         }
         
         handleEvent(e){
-            if(!VulcanInterface.isAppRunning(`illustrator`)){
-                csInterface.evalScript(`alert("Illustrorが立ち上がっていません")`);
-                return;
-            }
+            if(!this.isAppRun()) return false;
             const pathList = this.getFiles(e);
             console.log(pathList);
-            const vulcanNamespace = VulcanMessage.TYPE_PREFIX + extensionId;
-            const msg = new VulcanMessage(vulcanNamespace);
-            msg.setPayload(JSON.stringify(pathList));
-            VulcanInterface.dispatchMessage(msg);
+            const extensions = pathList.map(f=> path.extname(f).toLowerCase());
+            //if(!this.isAI(extensions)&&!this.isAnImg(extensions)) return;
+            const object = {
+                AI:this.isAI(extensions),
+                img:this.isAnImg(extensions),
+                folder:(isFolder(pathList[0])&&pathList.length == 1),
+                pathList:pathList,
+                app:this.app
+            }
+            console.log(object);
+            this.sendMassage(object);
         }
     }
-    const toAi = new DropAnotherApp(toIllustrator);
+    
+    const toAi = new DropAnotherAI(toIllustrator,"illustrator");
     console.log(VulcanInterface.isAppRunning(`bridge`)); // false
     
     class ListeningMs{
